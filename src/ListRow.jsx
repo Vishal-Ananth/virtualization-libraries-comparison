@@ -1,10 +1,11 @@
 export default function ListRow({ item, style, isScrolling, loading, index }) {
 	return (
 		<>
-			{loading ? (
-				<h3 style={style} className="card">
-					Loading...
-				</h3>
+			{isScrolling ? (
+				<div style={style} className="card">
+					<h1>{index}</h1>
+					<h3>Loading...</h3>
+				</div>
 			) : item === undefined ? (
 				<div style={style} className="card">
 					<h1>{index}</h1>

@@ -14,44 +14,47 @@ export default function useSearch(query, page) {
 	}, [query]);
 
 	useEffect(() => {
-		const abortController = new AbortController();
+		// const abortController = new AbortController();
 		if (query !== "") {
-			setLoading(true);
+			// setLoading(true);
 			setError(false);
-			const url = new URL("https://api.github.com/search/repositories");
-			url.searchParams.set("q", query);
-			url.searchParams.set("per_page", 10);
-			url.searchParams.set("page", page);
+			const urlOne = new URL("https://api.github.com/search/repositories");
+			// const urlTwo = new URL("https://api.github.com/search/repositories");
+			urlOne.searchParams.set("q", query);
+			urlOne.searchParams.set("per_page", 20);
+			urlOne.searchParams.set("page", page);
+			// urlTwo.searchParams.set("q", query);
+			// urlTwo.searchParams.set("per_page", 10);
+			// urlTwo.searchParams.set("page", page + 1);
 
-			fetch(url, {
+			fetch(urlOne, {
 				headers: {
 					Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
 				},
-				signal: abortController.signal,
+				// signal: abortController.signal,
 			})
 				.then((res) => {
 					console.log(`new fetch for ${query}`);
 					console.log("Calls left : ", res.headers.get("x-ratelimit-remaining"));
-					const check = res.headers.get("link").includes('rel="next"');
-					setHasNext(check);
-					setLoading(false);
+					// setHasNext(res.headers.get("link").includes('rel="next"'));
+					// setLoading(false);
 					return res.json();
 				})
 				.then((data) => {
 					setRepositories(data.items);
 					setTotalItems(data.total_count);
-					setLoading(false);
+					// setLoading(false);
 				})
 				.catch((e) => {
-					// console.error(e);
+					console.error(e);
 					setError(e.message);
-					setLoading(false);
+					// setLoading(false);
 				});
 		}
 
-		return () => {
-			abortController.abort();
-		};
+		// return () => {
+		// 	abortController.abort();
+		// };
 	}, [query, page]);
 
 	return { repositories, hasNext, loading, error, totalItems };

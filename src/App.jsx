@@ -9,18 +9,31 @@ function App() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [page, setPage] = useState(1);
 	const [pageToLoad, setPageToLoad] = useState(1);
-	const { repositories, loading, error, hasNext, totalItems } = useSearch(searchQuery, page);
-	// const { repositories, loading, error, hasNext, totalItems } = useSearch(searchQuery, page);
+	const { repositories, error, totalItems } = useSearch(searchQuery, page);
 	const debouncedPageNumber = useDebounce(pageToLoad, 100);
 	const [dataOnScreen, setDataOnScreen] = useState(Array(1000).fill(0));
-	const [currentIndex, setCurrentIndex] = useState(0);
 
 	useEffect(() => {
-		setPage(debouncedPageNumber);
+		console.log(dataOnScreen);
+	}, [dataOnScreen]);
+
+	useEffect(() => {
+		if (debouncedPageNumber > 0) {
+			setPage(debouncedPageNumber);
+		}
 	}, [debouncedPageNumber]);
 
 	useEffect(() => {
-		setDataOnScreen((prev) => prev.toSpliced((pageToLoad - 1) * 10, 10, ...repositories));
+		if (repositories.length !== 0) {
+			if (pageToLoad !== 0) {
+				setDataOnScreen((prev) =>
+					prev.toSpliced((pageToLoad - 1) * 10, 20, ...repositories)
+				);
+			} else {
+				setDataOnScreen((prev) => prev.toSpliced(pageToLoad * 10, 20, ...repositories));
+			}
+		}
+
 		console.log(repositories);
 	}, [repositories]);
 
@@ -29,8 +42,8 @@ function App() {
 	}
 
 	function handleScroll(e) {
-		setPageToLoad(Math.ceil((Math.ceil(e.scrollOffset / 100) + 5) / 10));
-		setCurrentIndex(Math.floor(e.scrollOffset / 200) + 0);
+		const pageCalc = Math.ceil(Math.ceil(e.scrollOffset / 100) / 10);
+		setPageToLoad(pageCalc);
 	}
 
 	return (
@@ -39,9 +52,7 @@ function App() {
 			<input type="text" placeholder="search ... " onChange={handleChange}></input>
 			{/* diplay are to show result information after fecthing */}
 			{/* area to how list length */}
-			<h2>
-				Total : {totalItems} &nbsp;&nbsp;&nbsp; Current {repositories.length}
-			</h2>
+			<h2>Total : {totalItems}</h2>
 			{/* area to show list contents */}
 			{/* <h2>{loading && "Loading ... "}</h2> */}
 			<h2>{error}</h2>
