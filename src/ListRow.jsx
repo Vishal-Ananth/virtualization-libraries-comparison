@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 
 export default function ListRow({ item, style, index }) {
-	useEffect(() => {
-		console.log(item);
-	}, [item]);
 	return (
 		<>
 			{!item ? (

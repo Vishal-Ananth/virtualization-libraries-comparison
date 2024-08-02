@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import "./App.css";
-import useSearch from "./utils/useSearch";
 import { FixedSizeList } from "react-window";
-import ListRow from "./ListRow";
+import AutoSizer from "react-virtualized-auto-sizer";
+import useSearch from "./utils/useSearch";
 import useDebounce from "./utils/useDebounce";
+import ListRow from "./ListRow";
+import "./App.css";
 
 function App() {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -55,27 +56,28 @@ function App() {
 			{/* area to show list contents */}
 			{/* <h2>{loading && "Loading ... "}</h2> */}
 
-			<h3>{errorTwo}</h3>
-			<div className="display">
-				<FixedSizeList
-					onScroll={handleScroll}
-					itemCount={Math.min(totalItems, 1000)}
-					itemSize={100}
-					height={600}
-					width={"100%"}
-					overscanCount={10}
-					useIsScrolling
-				>
-					{({ index, style, isScrolling }) => (
-						<ListRow
-							style={style}
-							item={dataOnScreen[index]}
-							index={index}
-							isScrolling={isScrolling}
-						></ListRow>
-					)}
-				</FixedSizeList>
-			</div>
+			<AutoSizer>
+				{({ width }) => (
+					<FixedSizeList
+						style={{ border: "2px solid black" }}
+						onScroll={handleScroll}
+						itemCount={Math.min(totalItems, 1000)}
+						itemSize={100}
+						height={600}
+						width={width}
+						useIsScrolling
+					>
+						{({ index, style, isScrolling }) => (
+							<ListRow
+								style={style}
+								item={dataOnScreen[index]}
+								index={index}
+								isScrolling={isScrolling}
+							></ListRow>
+						)}
+					</FixedSizeList>
+				)}
+			</AutoSizer>
 		</>
 	);
 }
