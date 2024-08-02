@@ -9,13 +9,14 @@ function App() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [page, setPage] = useState(1);
 	const [pageToLoad, setPageToLoad] = useState(1);
-	const { repositories, error, totalItems } = useSearch(searchQuery, page);
+	const { repo1, repo2, errorOne, errorTwo, totalItems } = useSearch(searchQuery, page);
 	const debouncedPageNumber = useDebounce(pageToLoad, 100);
 	const [dataOnScreen, setDataOnScreen] = useState(Array(1000).fill(0));
 
-	useEffect(() => {
-		console.log(dataOnScreen);
-	}, [dataOnScreen]);
+	// useEffect(() => {
+	// 	console.log(repo1);
+	// 	console.log(repo2);
+	// }, [dataOnScreen]);
 
 	useEffect(() => {
 		if (debouncedPageNumber > 0) {
@@ -24,18 +25,16 @@ function App() {
 	}, [debouncedPageNumber]);
 
 	useEffect(() => {
-		if (repositories.length !== 0) {
+		if (repo1.length !== 0 && repo2.length !== 0) {
 			if (pageToLoad !== 0) {
 				setDataOnScreen((prev) =>
-					prev.toSpliced((pageToLoad - 1) * 10, 20, ...repositories)
+					prev.toSpliced((pageToLoad - 1) * 10, 20, ...repo1, ...repo2)
 				);
-			} else {
-				setDataOnScreen((prev) => prev.toSpliced(pageToLoad * 10, 20, ...repositories));
+			} else if (pageToLoad !== 100) {
+				setDataOnScreen((prev) => prev.toSpliced(pageToLoad * 10, 20, ...repo1, ...repo2));
 			}
 		}
-
-		console.log(repositories);
-	}, [repositories]);
+	}, [repo1]);
 
 	function handleChange(e) {
 		setSearchQuery(e.target.value);
@@ -55,7 +54,8 @@ function App() {
 			<h2>Total : {totalItems}</h2>
 			{/* area to show list contents */}
 			{/* <h2>{loading && "Loading ... "}</h2> */}
-			<h2>{error}</h2>
+
+			<h3>{errorTwo}</h3>
 			<div className="display">
 				<FixedSizeList
 					onScroll={handleScroll}
@@ -66,13 +66,12 @@ function App() {
 					overscanCount={10}
 					useIsScrolling
 				>
-					{({ index, style, isScrolling, loading }) => (
+					{({ index, style, isScrolling }) => (
 						<ListRow
 							style={style}
 							item={dataOnScreen[index]}
-							isScrolling={isScrolling}
-							loading={loading}
 							index={index}
+							isScrolling={isScrolling}
 						></ListRow>
 					)}
 				</FixedSizeList>

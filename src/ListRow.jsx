@@ -1,12 +1,12 @@
-export default function ListRow({ item, style, isScrolling, loading, index }) {
+import { useEffect } from "react";
+
+export default function ListRow({ item, style, index }) {
+	useEffect(() => {
+		console.log(item);
+	}, [item]);
 	return (
 		<>
-			{isScrolling ? (
-				<div style={style} className="card">
-					<h1>{index}</h1>
-					<h3>Loading...</h3>
-				</div>
-			) : item === undefined ? (
+			{!item ? (
 				<div style={style} className="card">
 					<h1>{index}</h1>
 				</div>
