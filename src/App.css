@@ -1,10 +1,4 @@
-.card {
-    /* border: 2px solid #008000; */
-    height: 100px;
-    margin-bottom: 10px;
-}
-
-
-.display {
-    border: 2px solid red;
+.card:hover {
+    display:list-item;
+    background-color: rgba(255, 4, 4, 0.769);
 }

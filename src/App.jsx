@@ -1,62 +1,88 @@
-import { useEffect, useState } from "react";
-import { FixedSizeList } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
-import useSearch from "./utils/useSearch";
-import useDebounce from "./utils/useDebounce";
-import ListRow from "./ListRow";
 import "./App.css";
+import { FixedSizeList as List } from "react-window";
+import InfiniteLoader from "react-window-infinite-loader";
+import AutoSizer from "react-virtualized-auto-sizer";
+import Card from "./Component/Card";
+import {useEffect, useState } from "react";
+import useSearch from "./utils/useSearch";
 
 function App() {
-	const [searchQuery, setSearchQuery] = useState("");
-	const [page, setPage] = useState(1);
-	const [pageToLoad, setPageToLoad] = useState(1);
-	const { repo1, repo2, errorOne, errorTwo, totalItems } = useSearch(searchQuery, page);
-	const debouncedPageNumber = useDebounce(pageToLoad, 100);
-	const [dataOnScreen, setDataOnScreen] = useState(Array(1000).fill(0));
+	const [repositories, setRepositories] = useState([]);
+	const [searchQuery, setSearchQuery] = useState('');
+	// const debouncedQuery = useDebounce('',200)
+	const [page, setPage] = useState(0);
+	const {searchResult,error,totalCount} = useSearch(searchQuery,page);
 
 	// useEffect(() => {
-	// 	console.log(repo1);
-	// 	console.log(repo2);
-	// }, [dataOnScreen]);
+	// 	console.log(repositories);
+	// }, [repositories]);
 
-	useEffect(() => {
-		if (debouncedPageNumber > 0) {
-			setPage(debouncedPageNumber);
-		}
-	}, [debouncedPageNumber]);
+	if (repositories.length === 0) {
+		setRepositories(Array(1000).fill(null));
+	}
 
-	useEffect(() => {
-		if (repo1.length !== 0 && repo2.length !== 0) {
-			if (pageToLoad !== 0) {
-				setDataOnScreen((prev) =>
-					prev.toSpliced((pageToLoad - 1) * 10, 20, ...repo1, ...repo2)
-				);
-			} else if (pageToLoad !== 100) {
-				setDataOnScreen((prev) => prev.toSpliced(pageToLoad * 10, 20, ...repo1, ...repo2));
-			}
-		}
-	}, [repo1]);
+	function isItemLoaded(index) {
+		return index < repositories.length && repositories[index] !== null;
+	}
+
+	function loadMoreItems(startIndex, stopIndex) {
+		setPage(Math.floor(startIndex / 10));
+		console.log(Math.floor(startIndex/7));
+		console.log(searchResult)
+		setRepositories((prev) =>
+			prev.toSpliced(startIndex, startIndex+10, ...searchResult)
+		);
+		// console.log(fetchPromise)
+		// return fetchPromise;
+	}
 
 	function handleChange(e) {
 		setSearchQuery(e.target.value);
 	}
 
-	function handleScroll(e) {
-		const pageCalc = Math.ceil(Math.ceil(e.scrollOffset / 100) / 10);
-		setPageToLoad(pageCalc);
-	}
-
 	return (
 		<>
-			{/* Searchbar to search query */}
-			<input type="text" placeholder="search ... " onChange={handleChange}></input>
-			{/* diplay are to show result information after fecthing */}
-			{/* area to how list length */}
-			<h2>Total : {totalItems}</h2>
-			{/* area to show list contents */}
-			{/* <h2>{loading && "Loading ... "}</h2> */}
-
+			<input
+				type="text"
+				value={searchQuery}
+				placeholder="search ... "
+				onChange={handleChange}
+			></input>
+			<h2>{error}</h2>
+			<h2>{Math.min(totalCount, 1000)}</h2>
 			<AutoSizer>
+				{({ width }) => (
+					<InfiniteLoader
+						isItemLoaded={isItemLoaded}
+						itemCount={Math.min(totalCount, 1000)}
+						loadMoreItems={loadMoreItems}
+					>
+						{({ onItemsRendered, ref }) => (
+							<List
+								height={600}
+								width={width}
+								itemCount={Math.min(totalCount, 1000)}
+								itemSize={100}
+								itemData={repositories}
+								onItemsRendered={onItemsRendered}
+								ref={ref}
+								page={page}
+							>
+								{Card}
+							</List>
+						)}
+					</InfiniteLoader>
+				)}
+			</AutoSizer>
+		</>
+	);
+}
+
+export default App;
+
+/*
+
+<AutoSizer>
 				{({ width }) => (
 					<FixedSizeList
 						style={{ border: "2px solid black" }}
@@ -78,8 +104,5 @@ function App() {
 					</FixedSizeList>
 				)}
 			</AutoSizer>
-		</>
-	);
-}
 
-export default App;
+*/
