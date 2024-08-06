@@ -4,19 +4,37 @@ import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import Card from "./Component/Card";
 import { useEffect, useState } from "react";
-import useSearch from "./utils/useSearch";
-import useDebounce from "./utils/useDebounce";
 
 function App() {
 	const [repositories, setRepositories] = useState([]);
 	const [searchQuery, setSearchQuery] = useState("");
-	const debouncedQuery = useDebounce(searchQuery, 500);
 	const [page, setPage] = useState(0);
-	const { searchResult, error, totalCount } = useSearch(debouncedQuery, page);
+	const [totalCount, setTotalCount] = useState(0);
+	const [error, setError] = useState(null);
+	const [cancelToken, setCancelTOken] = useState(null);
 
 	useEffect(() => {
 		console.log(repositories);
 	}, [repositories]);
+
+	function makeFetch(text) {
+		fetch(`https://api.github.com/search/repositories?q=${text}&per_page=10&page=${page + 1}`, {
+			headers: {
+				Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
+			},
+		})
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				}
+				throw new Error("rate limiter !!");
+			})
+			.then((data) => {
+				setRepositories((prev) => prev.toSpliced(0, 10, ...data.items));
+				setTotalCount(data.total_count);
+			})
+			.catch((e) => setError(e.message));
+	}
 
 	if (repositories.length === 0) {
 		setRepositories(Array(1000).fill(null));
@@ -27,13 +45,52 @@ function App() {
 	}
 
 	function loadMoreItems(startIndex, stopIndex) {
+		let noOfElements = 0;
+		if (typeof cancelToken === "function") {
+			cancelToken();
+		}
+
 		setPage(Math.floor(startIndex / 10));
-		console.log(startIndex, stopIndex);
-		setRepositories((prev) => prev.toSpliced(startIndex, stopIndex + 1, ...searchResult));
+		if (startIndex % 10 < 5) {
+			console.log(startIndex % 5);
+			console.log("fetch 10 elements");
+			noOfElements = 10;
+		} else {
+			console.log("fetch 20 elements");
+			noOfElements = 20;
+		}
+		const signal = new AbortController();
+		setCancelTOken(signal.abort);
+		return fetch(
+			`https://api.github.com/search/repositories?q=${searchQuery}&per_page=${noOfElements}&page=${
+				Math.floor(startIndex / 10) + 1
+			}`,
+			{
+				headers: {
+					Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
+				},
+				signal,
+			}
+		)
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				}
+				throw new Error("rate limiter !!");
+			})
+			.then((data) => {
+				setRepositories((prev) =>
+					prev.toSpliced(Math.floor(startIndex / 10) * 10, noOfElements, ...data.items)
+				);
+				setTotalCount(data.total_count);
+				setError(null);
+			})
+			.catch((e) => setError(e.message));
 	}
 
 	function handleChange(e) {
 		setSearchQuery(e.target.value);
+		makeFetch(e.target.value);
 	}
 
 	return (
