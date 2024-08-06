@@ -13,28 +13,30 @@ export default function useSearch(query, page) {
 	}, [query]);
 
 	useEffect(() => {
-		// console.log(query);
-        if(query!==''){
-            fetch(
-                `https://api.github.com/search/repositories?q=${query}&per_page=10&page=${page + 1}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
-                    },
-                }
-            )
-                .then((res) => {
-                    if (res.ok) {
-                        return res.json();
-                    }
-                    throw new Error("rate limiter !!");
-                })
-                .then((data) => {
-                    setSearchResult(data.items);
-                    setTotalCount(data.total_count);
-                })
-                .catch((e) => setError(e.message));
-        }
+		console.log("fetch triggered");
+		if (query !== "") {
+			fetch(
+				`https://api.github.com/search/repositories?q=${query}&per_page=10&page=${
+					page + 1
+				}`,
+				{
+					headers: {
+						Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
+					},
+				}
+			)
+				.then((res) => {
+					if (res.ok) {
+						return res.json();
+					}
+					throw new Error("rate limiter !!");
+				})
+				.then((data) => {
+					setSearchResult(data.items);
+					setTotalCount(data.total_count);
+				})
+				.catch((e) => setError(e.message));
+		}
 	}, [query, page]);
 
 	return { searchResult, error, totalCount };
