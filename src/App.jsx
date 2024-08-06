@@ -11,11 +11,11 @@ function App() {
 	const [page, setPage] = useState(0);
 	const [totalCount, setTotalCount] = useState(0);
 	const [error, setError] = useState(null);
-	const [cancelToken, setCancelTOken] = useState(null);
+	// const [cancelToken, setCancelTOken] = useState(null);
 
-	useEffect(() => {
-		console.log(repositories);
-	}, [repositories]);
+	// useEffect(() => {
+	// 	console.log(repositories);
+	// }, [repositories]);
 
 	function makeFetch(text) {
 		fetch(`https://api.github.com/search/repositories?q=${text}&per_page=10&page=${page + 1}`, {
@@ -46,30 +46,31 @@ function App() {
 
 	function loadMoreItems(startIndex, stopIndex) {
 		let noOfElements = 0;
-		if (typeof cancelToken === "function") {
-			cancelToken();
-		}
+		let pageToFetch = 0;
+		// if (typeof cancelToken === "function") {
+		// 	cancelToken();
+		// }
 
 		setPage(Math.floor(startIndex / 10));
 		if (startIndex % 10 < 5) {
 			console.log(startIndex % 5);
 			console.log("fetch 10 elements");
 			noOfElements = 10;
+			pageToFetch = Math.floor(startIndex / 10) + 1;
 		} else {
 			console.log("fetch 20 elements");
 			noOfElements = 20;
+			pageToFetch = (Math.floor(startIndex / 10) + 1) / 2;
 		}
 		const signal = new AbortController();
-		setCancelTOken(signal.abort);
+		// setCancelTOken(signal.abort);
 		return fetch(
-			`https://api.github.com/search/repositories?q=${searchQuery}&per_page=${noOfElements}&page=${
-				Math.floor(startIndex / 10) + 1
-			}`,
+			`https://api.github.com/search/repositories?q=${searchQuery}&per_page=${noOfElements}&page=${pageToFetch}`,
 			{
 				headers: {
 					Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
 				},
-				signal,
+				// signal,
 			}
 		)
 			.then((res) => {
