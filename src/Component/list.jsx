@@ -1,6 +1,6 @@
 import { FixedSizeList } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
-import Card from "./Component/Card";
+import Card from "./Card";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { useCallback, useEffect, useState } from "react";
 
