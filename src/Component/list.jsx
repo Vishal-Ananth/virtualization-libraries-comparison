@@ -6,6 +6,7 @@ import { useState } from "react";
 
 export default function List({ totalCount, data, setData, searchQuery, noOfFetchItems = 100 }) {
 	const [page, setPage] = useState(1); // state to store the current page to be fetched
+	const [error, setError] = useState(false);
 
 	// function that gets called everytime InfiniteLoader
 	function loadMoreItems(startIndex) {
@@ -39,13 +40,17 @@ export default function List({ totalCount, data, setData, searchQuery, noOfFetch
 					})
 						.then((res) => res.json())
 						.then((value) => value.items)
-						.catch((e) => console.log(e.message))
+						.catch((e) => setError(e.message))
 				)
 			).then((fetchVals) => {
 				const flatValues = fetchVals.flat(1); // .flat() to get rid of all the sub arrays and return an array of depth 1
 				setData(
 					(prev) =>
-						prev.toSpliced((pageCalculated - 1) * 100, flatValues.length, ...flatValues) // replacing fetchValue.length number of null values from specified index with the elements of the flatValues array
+						prev.toSpliced(
+							(pageCalculated - 1) * noOfFetchItems,
+							flatValues.length,
+							...flatValues
+						) // replacing fetchValue.length number of null values from specified index with the elements of the flatValues array
 				);
 			});
 		}
@@ -58,15 +63,15 @@ export default function List({ totalCount, data, setData, searchQuery, noOfFetch
 				{({ height, width }) => (
 					<InfiniteLoader
 						isItemLoaded={(index) => !!data[index]} // determines if item in the array is holding a value or not, required to call the loadMoreItems function
-						itemCount={totalCount} // use 1000 for demo , totalCount for production
+						itemCount={1000} // use 1000 for demo , totalCount for production
 						loadMoreItems={loadMoreItems} // function called when a item that is not loaded in encountered in the viewport
 						threshold={0} // ensuring there are no pre-fetched value on first render
 						minimumBatchSize={noOfFetchItems} // The size of each batch of items that are to be fetched and added to the array/list
 					>
 						{({ onItemsRendered, ref }) => (
 							<FixedSizeList
-								height={height} // provided by autosizer - takes the height relative to autosizers parent
-								width={width} // provided by autosizer - takes the width relative to autosizers parent
+								height={height} // provided by autosizer - takes the height relative to autosizer's parent
+								width={width} // provided by autosizer - takes the width relative to autosizer's parent
 								itemCount={1000} // use 1000 for demo , totalCount for production
 								itemSize={100} // height of a lingle list item in px
 								itemData={data} // The array/list of items that need to be virtualized

@@ -1,44 +1,46 @@
 import { useEffect, useState } from "react";
 import useFetch from "../utils/useFetch";
-import List from "./List";
+import List from "./list";
 
 function App() {
+
 	const [searchQuery, setSearchQuery] = useState(""); // text to search for
 	const { data, loading, error, totalCount } = useFetch(searchQuery); // hook to make fetch calls for change in searchQuery value
-	const [repo, setRepo] = useState([]); // common data structure to store all fetched result values to display
+	const [repositories, setRepositories] = useState([]); // common data structure to store all fetched result values to display
 
 	// Reseting the repo array in between renders when searchQuery changes
 	useEffect(() => {
 		if (totalCount !== 0) {
-			setRepo(new Array(totalCount).fill(null));
+			setRepositories(new Array(totalCount).fill(null));
 		}
 	}, [totalCount]);
 
-	// Replacing the first 'x' repo values with the fetched results on change in the data returned from the useFetch hook
+	// Replacing the first 'x' values in repositories  with data from the useFetch hook being called on change in searchQuery value
 	useEffect(() => {
 		if (data.length !== 0) {
-			setRepo((prev) => prev.toSpliced(0, 100, ...data));
+			setRepositories((prev) => prev.toSpliced(0, 100, ...data));
 		}
 	}, [data]);
 
 	return (
 		<div>
-			
+			{/* <form onSubmit={(e) => e.preventDefault()}> */}
 			<input
+				id="search-input"
 				type="text"
 				placeholder="search ... "
 				onChange={(e) => setSearchQuery(e.target.value)}
 			></input>
+			{/* </form> */}
 			<h1>{error}</h1>
 
-
-			{searchQuery.length !== 0 && (
+			{searchQuery.length !== 0 && !error && (
 				<div className="data">
 					<h2>Total Results :{totalCount}</h2>
 					{loading}
 					<List
-						data={repo}
-						setData={setRepo}
+						data={repositories}
+						setData={setRepositories}
 						totalCount={totalCount}
 						searchQuery={searchQuery}
 					/>

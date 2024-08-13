@@ -43,29 +43,3 @@ export default function useFetch(searchQuery, noOfFetchItems = 100, page = 1) {
 
 	return { data, loading, error, totalCount };
 }
-
-/*
-axios({
-	method: "get",
-	url: "https://api.github.com/search/repositories",
-	params: {
-		q: searchQuery,
-		per_page: noOfFetchItems,
-		page: page,
-	},
-	headers: {
-		Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
-	},
-	cancelToken: source.token,
-})
-	.then((res) => {
-		setLoading(false);
-		setError(false);
-		setTotalCount(res.data.total_count);
-		setData((prev) => [...prev, ...res.data.items]);
-	})
-	.catch((e) => {
-		setError(e);
-		setLoading(false);
-	});
-*/
