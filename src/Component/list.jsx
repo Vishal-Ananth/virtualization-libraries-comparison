@@ -3,6 +3,7 @@ import InfiniteLoader from "react-window-infinite-loader";
 import Card from "./Card";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { useState } from "react";
+import makeFetch from "../utils/makeFetch";
 
 export default function List({ totalCount, data, setData, searchQuery, noOfFetchItems = 100 }) {
 	const [page, setPage] = useState(1); // state to store the current page to be fetched
@@ -31,26 +32,22 @@ export default function List({ totalCount, data, setData, searchQuery, noOfFetch
 			}
 
 			// Make all fetch calls in urls array to give a singular array with all results
+			const abortToken = new AbortController();
 			return Promise.all(
-				urls.map((url) =>
-					fetch(url, {
-						headers: {
-							Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
-						},
-					})
-						.then((res) => res.json())
-						.then((value) => value.items)
-						.catch((e) => setError(e.message))
-				)
+				urls.map(async (url) => {
+					const jsonValue = makeFetch(url, abortToken);
+					try {
+						const value = await jsonValue;
+						return value.items;
+					} catch (e) {
+						return setError(e.message);
+					}
+				})
 			).then((fetchVals) => {
 				const flatValues = fetchVals.flat(1); // .flat() to get rid of all the sub arrays and return an array of depth 1
 				setData(
 					(prev) =>
-						prev.toSpliced(
-							(pageCalculated - 1) * noOfFetchItems,
-							flatValues.length,
-							...flatValues
-						) // replacing fetchValue.length number of null values from specified index with the elements of the flatValues array
+						prev.toSpliced((pageCalculated - 1) * noOfFetchItems, flatValues.length, ...flatValues) // replacing fetchValue.length number of null values from specified index with the elements of the flatValues array
 				);
 			});
 		}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import makeFetch from "./makeFetch";
 
 export default function useFetch(searchQuery, noOfFetchItems = 100, page = 1) {
 	const [data, setData] = useState([]);
@@ -14,19 +15,16 @@ export default function useFetch(searchQuery, noOfFetchItems = 100, page = 1) {
 		const abortToken = new AbortController();
 
 		if (searchQuery.length !== 0) {
-			fetch(
+			const jsonData = makeFetch(
 				`https://api.github.com/search/repositories?q=${searchQuery}&per_page=${noOfFetchItems}&page=${page}`,
-				{
-					headers: {
-						Authorization: `Bearer ${process.env.REACT_APP_GITHUB_KEY}`,
-					},
-					signal: abortToken.signal,
-				}
-			)
-				.then((res) => res.json())
+				abortToken
+			);
+
+			jsonData
 				.then((data) => {
 					setLoading(false);
 					setError(false);
+
 					setTotalCount(data.total_count);
 					setData((prev) => [...prev, ...data.items]);
 				})
