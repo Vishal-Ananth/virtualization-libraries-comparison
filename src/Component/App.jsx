@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import useFetch from "../utils/useFetch";
 import List from "./list";
+import Input from "./Input";
 
 function App() {
-
 	const [searchQuery, setSearchQuery] = useState(""); // text to search for
 	const { data, loading, error, totalCount } = useFetch(searchQuery); // hook to make fetch calls for change in searchQuery value
 	const [repositories, setRepositories] = useState([]); // common data structure to store all fetched result values to display
@@ -25,12 +25,7 @@ function App() {
 	return (
 		<div>
 			{/* <form onSubmit={(e) => e.preventDefault()}> */}
-			<input
-				id="search-input"
-				type="text"
-				placeholder="search ... "
-				onChange={(e) => setSearchQuery(e.target.value)}
-			></input>
+			<Input setSearchQuery={setSearchQuery} />
 			{/* </form> */}
 			<h1>{error}</h1>
 
