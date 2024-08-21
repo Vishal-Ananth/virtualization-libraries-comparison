@@ -5,7 +5,7 @@ export default function Card({ index, style, data }) {
 		<>
 			{!loading ? (
 				<div
-					style={{ ...style, border: "1px solid green", paddingLeft: "5px" }}
+					style={{ ...style, border: "1px solid green", paddingLeft: "7px" }}
 					className="card"
 				>
 					<h2>{index}</h2>
@@ -13,7 +13,7 @@ export default function Card({ index, style, data }) {
 				</div>
 			) : (
 				<div
-					style={{ ...style, border: "1px solid black", paddingLeft: "5px" }}
+					style={{ ...style, border: "1px solid black", paddingLeft: "7px" }}
 					className="card"
 				>
 					<h2>{index}</h2>
