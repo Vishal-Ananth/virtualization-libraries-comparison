@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import makeFetch from "./makeFetch";
 
-export default function useFetch(searchQuery, noOfFetchItems = 100, page = 1) {
+export function useFetch(searchQuery, noOfFetchItems = 100, page = 1) {
 	const [data, setData] = useState([]);
 	const [totalCount, setTotalCount] = useState(null);
 	const [loading, setLoading] = useState(null);

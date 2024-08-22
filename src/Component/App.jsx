@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useFetch from "../utils/useFetch";
+import {useFetch} from "../utils/useFetch";
 import List from "./list";
 import Input from "./Input";
 
