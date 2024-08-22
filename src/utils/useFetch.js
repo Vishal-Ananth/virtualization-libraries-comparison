@@ -24,7 +24,6 @@ export default function useFetch(searchQuery, noOfFetchItems = 100, page = 1) {
 				.then((data) => {
 					setLoading(false);
 					setError(false);
-
 					setTotalCount(data.total_count);
 					setData((prev) => [...prev, ...data.items]);
 				})
