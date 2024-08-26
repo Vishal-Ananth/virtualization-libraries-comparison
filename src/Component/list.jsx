@@ -60,7 +60,7 @@ export default function List({ totalCount, data, setData, searchQuery, noOfFetch
 				{({ height, width }) => (
 					<InfiniteLoader
 						isItemLoaded={(index) => !!data[index]} // determines if item in the array is holding a value or not, required to call the loadMoreItems function
-						itemCount={1000} // use 1000 for demo , totalCount for production
+						itemCount={totalCount} // use 1000 for demo , totalCount for production
 						loadMoreItems={loadMoreItems} // function called when a item that is not loaded in encountered in the viewport
 						threshold={0} // ensuring there are no pre-fetched value on first render
 						minimumBatchSize={noOfFetchItems} // The size of each batch of items that are to be fetched and added to the array/list
@@ -69,7 +69,7 @@ export default function List({ totalCount, data, setData, searchQuery, noOfFetch
 							<FixedSizeList
 								height={height} // provided by autosizer - takes the height relative to autosizer's parent
 								width={width} // provided by autosizer - takes the width relative to autosizer's parent
-								itemCount={1000} // use 1000 for demo , totalCount for production
+								itemCount={totalCount} // use 1000 for demo , totalCount for production
 								itemSize={100} // height of a lingle list item in px
 								itemData={data} // The array/list of items that need to be virtualized
 								onItemsRendered={onItemsRendered}
